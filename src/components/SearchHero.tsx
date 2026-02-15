@@ -1,19 +1,43 @@
 "use client";
 
 import { useState } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 
-export default function SearchHero() {
-  const [postcode, setPostcode] = useState("");
+export default function SearchHero({ compact }: { compact?: boolean }) {
+  const searchParams = useSearchParams();
+  const [postcode, setPostcode] = useState(
+    searchParams.get("postcode")?.replace(/\+/g, " ") || ""
+  );
   const router = useRouter();
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
-    const cleaned = postcode.trim().replace(/\s+/g, "+");
+    const cleaned = postcode.trim();
     if (cleaned) {
       router.push(`/search?postcode=${encodeURIComponent(cleaned)}`);
     }
   };
+
+  if (compact) {
+    return (
+      <form onSubmit={handleSearch} className="flex gap-3 max-w-lg">
+        <input
+          type="text"
+          value={postcode}
+          onChange={(e) => setPostcode(e.target.value)}
+          placeholder="Enter a postcode"
+          className="flex-1 px-4 py-3 text-base rounded-lg border border-stone-300 bg-white focus:outline-none focus:ring-2 focus:ring-teal-500"
+          aria-label="Postcode"
+        />
+        <button
+          type="submit"
+          className="px-6 py-3 font-semibold text-white bg-teal-600 rounded-lg hover:bg-teal-700 focus:outline-none focus:ring-2 focus:ring-teal-500 transition-colors cursor-pointer"
+        >
+          Search
+        </button>
+      </form>
+    );
+  }
 
   return (
     <section className="bg-gradient-to-b from-teal-50 to-stone-50 py-16 sm:py-24">
@@ -27,7 +51,10 @@ export default function SearchHero() {
           ratings, read inspection results, and make informed decisions.
         </p>
 
-        <form onSubmit={handleSearch} className="mt-8 flex flex-col sm:flex-row gap-3 max-w-lg mx-auto">
+        <form
+          onSubmit={handleSearch}
+          className="mt-8 flex flex-col sm:flex-row gap-3 max-w-lg mx-auto"
+        >
           <input
             type="text"
             value={postcode}
