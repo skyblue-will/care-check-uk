@@ -1,5 +1,7 @@
 import RatingBadge from "./RatingBadge";
 import Link from "next/link";
+import { lookupPostcode, distanceMiles } from "@/lib/geo";
+import { cqcFetch } from "@/lib/cqc";
 
 interface CareHomeResult {
   id: string;
@@ -21,26 +23,95 @@ interface CareHomeResult {
   distance: number;
 }
 
-interface SearchResponse {
-  postcode: string;
-  total: number;
-  results: CareHomeResult[];
-  error?: string;
-}
-
 async function fetchResults(
   postcode: string,
   radius: number
-): Promise<SearchResponse> {
-  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || process.env.VERCEL_URL
-    ? `https://${process.env.VERCEL_URL}`
-    : "http://localhost:3000";
+): Promise<{ results: CareHomeResult[]; postcode: string; error?: string }> {
+  const location = await lookupPostcode(postcode);
+  if (!location) {
+    return { results: [], postcode, error: "Invalid postcode. Please check and try again." };
+  }
 
-  const res = await fetch(
-    `${baseUrl}/api/search?postcode=${encodeURIComponent(postcode)}&radius=${radius}`,
-    { cache: "no-store" }
-  );
-  return res.json();
+  // Fetch care homes from CQC API by local authority + region
+  const [laResults, regionResults] = await Promise.all([
+    cqcFetch(
+      `/locations?careHome=Y&localAuthority=${encodeURIComponent(location.admin_district)}&perPage=200&page=1`
+    ).catch(() => ({ locations: [] })),
+    cqcFetch(
+      `/locations?careHome=Y&region=${encodeURIComponent(location.region)}&perPage=500&page=1`
+    ).catch(() => ({ locations: [] })),
+  ]);
+
+  // Merge and deduplicate
+  const seen = new Set<string>();
+  const allLocations: { locationId: string }[] = [];
+  for (const list of [laResults.locations, regionResults.locations]) {
+    for (const loc of list || []) {
+      if (!seen.has(loc.locationId)) {
+        seen.add(loc.locationId);
+        allLocations.push(loc);
+      }
+    }
+  }
+
+  // Fetch details (batched, max 100 to keep response time ok)
+  const toFetch = allLocations.slice(0, 100);
+  const details: Record<string, unknown>[] = [];
+  const batchSize = 10;
+
+  for (let i = 0; i < toFetch.length; i += batchSize) {
+    const batch = toFetch.slice(i, i + batchSize);
+    const results = await Promise.allSettled(
+      batch.map((loc) => cqcFetch(`/locations/${loc.locationId}`))
+    );
+    for (const r of results) {
+      if (r.status === "fulfilled") details.push(r.value as Record<string, unknown>);
+    }
+  }
+
+  // Calculate distances and filter
+  const results = details
+    .filter((d) => d.onspdLatitude && d.onspdLongitude)
+    .map((d) => {
+      const dist = distanceMiles(
+        location.latitude,
+        location.longitude,
+        d.onspdLatitude as number,
+        d.onspdLongitude as number
+      );
+      const currentRatings = d.currentRatings as Record<string, unknown> | undefined;
+      const ratings = currentRatings?.overall as Record<string, unknown> | undefined;
+      const keyRatings: Record<string, string> = {};
+      if (ratings?.keyQuestionRatings) {
+        for (const kq of ratings.keyQuestionRatings as { name: string; rating: string }[]) {
+          keyRatings[kq.name.toLowerCase()] = kq.rating;
+        }
+      }
+      return {
+        id: d.locationId as string,
+        name: d.name as string,
+        postcode: d.postalCode as string,
+        address: [d.postalAddressLine1, d.postalAddressLine2].filter(Boolean).join(", "),
+        town: (d.postalAddressTownCity as string) || "",
+        localAuthority: (d.localAuthority as string) || "",
+        beds: (d.numberOfBeds as number) || null,
+        types: ((d.gacServiceTypes as { name: string }[]) || []).map((t) => t.name),
+        specialisms: ((d.specialisms as { name: string }[]) || []).map((s) => s.name),
+        rating: (ratings?.rating as string) || null,
+        safe: keyRatings.safe || null,
+        effective: keyRatings.effective || null,
+        caring: keyRatings.caring || null,
+        responsive: keyRatings.responsive || null,
+        wellLed: keyRatings["well-led"] || null,
+        lastInspection: (d.lastInspection as Record<string, string>)?.date || null,
+        distance: Math.round(dist * 10) / 10,
+      };
+    })
+    .filter((d) => d.distance <= radius)
+    .sort((a, b) => a.distance - b.distance)
+    .slice(0, 50);
+
+  return { results, postcode: location.postcode };
 }
 
 export default async function SearchResults({
@@ -63,7 +134,7 @@ export default async function SearchResults({
     );
   }
 
-  if (data.total === 0) {
+  if (data.results.length === 0) {
     return (
       <div className="text-center py-12">
         <p className="text-lg text-stone-700">
@@ -80,12 +151,10 @@ export default async function SearchResults({
     <div>
       <div className="flex items-center justify-between mb-6">
         <h2 className="text-xl font-bold text-stone-900">
-          {data.total} care home{data.total !== 1 ? "s" : ""} near{" "}
+          {data.results.length} care home{data.results.length !== 1 ? "s" : ""} near{" "}
           {data.postcode}
         </h2>
-        <span className="text-sm text-stone-500">
-          Within {radius} miles
-        </span>
+        <span className="text-sm text-stone-500">Within {radius} miles</span>
       </div>
 
       <div className="space-y-4">
@@ -96,12 +165,10 @@ export default async function SearchResults({
             className="block bg-white rounded-xl border border-stone-200 p-5 hover:border-teal-300 hover:shadow-md transition-all"
           >
             <div className="flex flex-col sm:flex-row sm:items-start gap-4">
-              {/* Rating badge */}
               <div className="sm:w-24 flex-shrink-0">
                 <RatingBadge rating={home.rating} />
               </div>
 
-              {/* Details */}
               <div className="flex-1 min-w-0">
                 <h3 className="text-lg font-semibold text-stone-900">
                   {home.name}
@@ -113,10 +180,7 @@ export default async function SearchResults({
 
                 <div className="flex flex-wrap gap-2 mt-3">
                   {home.types.map((t) => (
-                    <span
-                      key={t}
-                      className="text-xs px-2 py-1 bg-stone-100 text-stone-600 rounded-full"
-                    >
+                    <span key={t} className="text-xs px-2 py-1 bg-stone-100 text-stone-600 rounded-full">
                       {t}
                     </span>
                   ))}
@@ -127,7 +191,6 @@ export default async function SearchResults({
                   )}
                 </div>
 
-                {/* Mini ratings */}
                 <div className="flex flex-wrap gap-3 mt-3 text-xs text-stone-500">
                   {home.safe && <MiniRating label="Safe" rating={home.safe} />}
                   {home.caring && <MiniRating label="Caring" rating={home.caring} />}
@@ -137,7 +200,6 @@ export default async function SearchResults({
                 </div>
               </div>
 
-              {/* Distance */}
               <div className="sm:text-right flex-shrink-0">
                 <span className="text-sm font-medium text-teal-700">
                   {home.distance} mi
@@ -158,8 +220,7 @@ export default async function SearchResults({
       </div>
 
       <p className="text-xs text-stone-400 text-center mt-8">
-        Data from the Care Quality Commission (CQC) under the Open Government
-        Licence.
+        Data from the Care Quality Commission (CQC) under the Open Government Licence.
       </p>
     </div>
   );
