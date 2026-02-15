@@ -22,6 +22,11 @@ interface CareHomeEntry {
   rr: string | null; // responsive
   rw: string | null; // well-led
   ins: string | null; // last inspection date
+  ae_name?: string;   // nearest A&E hospital name
+  ae_miles?: number;  // distance to nearest A&E in miles
+  imd?: number;       // IMD 2019 score (0-100, higher = more deprived)
+  imd_d?: number;     // IMD decile (1=least, 10=most deprived)
+  idaopi?: number;    // income deprivation affecting older people (%)
 }
 
 let cachedData: CareHomeEntry[] | null = null;
@@ -66,10 +71,29 @@ export function searchLocal(
       lastInspection: h.ins,
       reportDate: null,
       distance: Math.round(distanceMiles(lat, lng, h.lat!, h.lng!) * 10) / 10,
+      ae_name: h.ae_name || null,
+      ae_miles: h.ae_miles ?? null,
+      imd_d: h.imd_d ?? null,
     }))
     .filter((h) => h.distance <= radiusMiles)
     .sort((a, b) => a.distance - b.distance)
     .slice(0, limit);
 
   return results;
+}
+
+/** Look up enriched local data for a single care home by ID */
+export function getLocalData(locationId: string) {
+  const data = loadData();
+  const home = data.find((h) => h.id === locationId);
+  if (!home) return null;
+  return {
+    ae_name: home.ae_name || null,
+    ae_miles: home.ae_miles ?? null,
+    imd: home.imd ?? null,
+    imd_d: home.imd_d ?? null,
+    idaopi: home.idaopi ?? null,
+    beds: home.beds,
+    rating: home.r,
+  };
 }
