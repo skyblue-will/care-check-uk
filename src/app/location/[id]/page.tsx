@@ -55,7 +55,7 @@ export async function generateMetadata({
   if (!data) return { title: "Care Home Not Found" };
   const rating = data.currentRatings?.overall?.rating;
   return {
-    title: `${data.name} - CQC Rating: ${rating || "Not Rated"} | Care Check UK`,
+    title: `${data.name} - CQC Rating: ${rating || "Not Rated"} | Care Home Ratings`,
     description: `${data.name} in ${data.postalAddressTownCity || data.localAuthority}. CQC rating: ${rating || "Not yet rated"}. ${data.numberOfBeds ? `${data.numberOfBeds} beds.` : ""} View full inspection details and ratings breakdown.`,
   };
 }
