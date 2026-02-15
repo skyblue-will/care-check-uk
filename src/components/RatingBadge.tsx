@@ -1,8 +1,31 @@
-const ratingConfig: Record<string, { bg: string; text: string; label: string }> = {
-  Outstanding: { bg: "bg-blue-100", text: "text-blue-800", label: "Outstanding" },
-  Good: { bg: "bg-green-100", text: "text-green-800", label: "Good" },
-  "Requires improvement": { bg: "bg-amber-100", text: "text-amber-800", label: "Requires Improvement" },
-  Inadequate: { bg: "bg-red-100", text: "text-red-800", label: "Inadequate" },
+const ratingConfig: Record<
+  string,
+  { bg: string; text: string; border: string; label: string }
+> = {
+  Outstanding: {
+    bg: "bg-emerald-50",
+    text: "text-emerald-800",
+    border: "border-emerald-200",
+    label: "Outstanding",
+  },
+  Good: {
+    bg: "bg-sky-50",
+    text: "text-sky-800",
+    border: "border-sky-200",
+    label: "Good",
+  },
+  "Requires improvement": {
+    bg: "bg-amber-50",
+    text: "text-amber-800",
+    border: "border-amber-200",
+    label: "Requires Improvement",
+  },
+  Inadequate: {
+    bg: "bg-red-50",
+    text: "text-red-800",
+    border: "border-red-200",
+    label: "Inadequate",
+  },
 };
 
 export default function RatingBadge({
@@ -12,34 +35,32 @@ export default function RatingBadge({
   rating: string | null;
   size?: "sm" | "md" | "lg";
 }) {
-  if (!rating) {
+  if (!rating || rating === "No published rating") {
     return (
-      <div className="flex flex-col items-center justify-center px-3 py-2 bg-stone-100 rounded-lg">
-        <span className="text-xs text-stone-400 font-medium">Not yet rated</span>
+      <div className="inline-flex items-center px-2.5 py-1 rounded border border-slate-200 bg-slate-50">
+        <span className="text-xs text-slate-400 font-medium">Not rated</span>
       </div>
     );
   }
 
   const config = ratingConfig[rating] || {
-    bg: "bg-stone-100",
-    text: "text-stone-700",
+    bg: "bg-slate-50",
+    text: "text-slate-700",
+    border: "border-slate-200",
     label: rating,
   };
 
   const sizeClasses = {
-    sm: "px-2 py-1 text-xs",
-    md: "px-3 py-2 text-sm",
-    lg: "px-4 py-3 text-base",
+    sm: "px-2 py-0.5 text-xs",
+    md: "px-3 py-1 text-sm",
+    lg: "px-4 py-2 text-base",
   };
 
   return (
     <div
-      className={`flex flex-col items-center justify-center rounded-lg ${config.bg} ${sizeClasses[size]}`}
+      className={`inline-flex items-center rounded border ${config.bg} ${config.border} ${sizeClasses[size]}`}
     >
-      <span className={`font-bold ${config.text} leading-tight text-center`}>
-        {config.label}
-      </span>
-      <span className="text-[10px] text-stone-400 mt-0.5">CQC Rating</span>
+      <span className={`font-semibold ${config.text}`}>{config.label}</span>
     </div>
   );
 }

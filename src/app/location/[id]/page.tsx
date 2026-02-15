@@ -18,19 +18,25 @@ interface LocationData {
   mainPhoneNumber?: string;
   brandName?: string;
   registrationDate?: string;
-  onspdLatitude?: number;
-  onspdLongitude?: number;
   gacServiceTypes?: { name: string; description: string }[];
   specialisms?: { name: string }[];
   regulatedActivities?: {
     name: string;
-    contacts?: { personGivenName: string; personFamilyName: string; personRoles: string[] }[];
+    contacts?: {
+      personGivenName: string;
+      personFamilyName: string;
+      personRoles: string[];
+    }[];
   }[];
   currentRatings?: {
     overall?: {
       rating?: string;
       reportDate?: string;
-      keyQuestionRatings?: { name: string; rating: string; reportDate: string }[];
+      keyQuestionRatings?: {
+        name: string;
+        rating: string;
+        reportDate: string;
+      }[];
     };
   };
   lastInspection?: { date?: string };
@@ -54,9 +60,10 @@ export async function generateMetadata({
   const data = await getLocationData(id);
   if (!data) return { title: "Care Home Not Found" };
   const rating = data.currentRatings?.overall?.rating;
+  const town = data.postalAddressTownCity || data.localAuthority || "";
   return {
-    title: `${data.name} - CQC Rating: ${rating || "Not Rated"} | Care Home Ratings`,
-    description: `${data.name} in ${data.postalAddressTownCity || data.localAuthority}. CQC rating: ${rating || "Not yet rated"}. ${data.numberOfBeds ? `${data.numberOfBeds} beds.` : ""} View full inspection details and ratings breakdown.`,
+    title: `${data.name}${town ? `, ${town}` : ""} — CQC Rating: ${rating || "Not Rated"} | Care Home Ratings`,
+    description: `CQC inspection ratings for ${data.name} in ${town}. Overall: ${rating || "Not yet rated"}. ${data.numberOfBeds ? `${data.numberOfBeds} beds.` : ""} View full ratings breakdown and inspection details.`,
   };
 }
 
@@ -76,90 +83,101 @@ export default async function LocationPage({
     .filter(Boolean)
     .join(", ");
   const manager = data.regulatedActivities?.[0]?.contacts?.[0];
+  const town = data.postalAddressTownCity || "";
 
   return (
-    <div className="max-w-4xl mx-auto px-4 py-8">
+    <div className="max-w-4xl mx-auto px-4 sm:px-6 py-8">
       {/* Breadcrumb */}
-      <nav className="text-sm text-stone-500 mb-6">
-        <Link href="/" className="hover:text-teal-700">
+      <nav className="text-sm text-slate-400 mb-8">
+        <Link href="/" className="hover:text-slate-600">
           Home
-        </Link>{" "}
-        ›{" "}
+        </Link>
+        {" / "}
         <Link
           href={`/search?postcode=${encodeURIComponent(data.postalCode)}`}
-          className="hover:text-teal-700"
+          className="hover:text-slate-600"
         >
-          Search
-        </Link>{" "}
-        › {data.name}
+          Care homes near {data.postalCode}
+        </Link>
       </nav>
 
       {/* Header */}
-      <div className="flex flex-col sm:flex-row gap-6 items-start">
-        <div className="flex-1">
-          <h1 className="text-2xl sm:text-3xl font-bold text-stone-900">
-            {data.name}
-          </h1>
-          <p className="mt-2 text-stone-600">
-            {address}
-            {data.postalAddressTownCity
-              ? `, ${data.postalAddressTownCity}`
-              : ""}
-            , {data.postalCode}
-          </p>
-          <div className="flex flex-wrap gap-2 mt-3">
-            {(data.gacServiceTypes || []).map((t) => (
-              <span
-                key={t.name}
-                className="text-sm px-3 py-1 bg-stone-100 text-stone-700 rounded-full"
-              >
-                {t.name}
-              </span>
-            ))}
-          </div>
+      <div>
+        <div className="flex flex-wrap gap-2 mb-3">
+          {(data.gacServiceTypes || []).map((t) => (
+            <span
+              key={t.name}
+              className="text-xs px-2 py-0.5 bg-slate-100 text-slate-600 rounded"
+            >
+              {t.name === "Residential homes"
+                ? "Residential care home"
+                : t.name === "Nursing homes"
+                  ? "Nursing home"
+                  : t.name}
+            </span>
+          ))}
         </div>
-        <div className="flex-shrink-0">
-          <RatingBadge rating={ratings?.rating || null} size="lg" />
-        </div>
+        <h1 className="text-2xl sm:text-3xl font-semibold text-slate-900">
+          {data.name}
+        </h1>
+        <p className="mt-2 text-slate-500">
+          {address}
+          {town ? `, ${town}` : ""}, {data.postalCode}
+        </p>
       </div>
 
-      {/* Key info grid */}
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mt-8">
-        {data.numberOfBeds && (
-          <InfoCard label="Beds" value={String(data.numberOfBeds)} />
-        )}
-        {data.localAuthority && (
-          <InfoCard label="Local Authority" value={data.localAuthority} />
-        )}
-        {data.region && <InfoCard label="Region" value={data.region} />}
-        {data.lastInspection?.date && (
-          <InfoCard
-            label="Last Inspected"
-            value={new Date(data.lastInspection.date).toLocaleDateString(
-              "en-GB",
-              { day: "numeric", month: "short", year: "numeric" }
+      {/* Overall rating */}
+      <section className="mt-8 bg-slate-50 rounded-lg border border-slate-200 p-6">
+        <div className="flex items-center justify-between">
+          <div>
+            <p className="text-sm text-slate-500 font-medium">
+              Overall CQC rating
+            </p>
+            <div className="mt-2">
+              <RatingBadge rating={ratings?.rating || null} size="lg" />
+            </div>
+            {ratings?.reportDate && (
+              <p className="text-xs text-slate-400 mt-2">
+                Rated{" "}
+                {new Date(ratings.reportDate).toLocaleDateString("en-GB", {
+                  day: "numeric",
+                  month: "long",
+                  year: "numeric",
+                })}
+              </p>
             )}
-          />
-        )}
-      </div>
+          </div>
+          {data.reports?.[0] && (
+            <a
+              href={`https://www.cqc.org.uk${data.reports[0].reportUri}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-sm text-slate-600 underline hover:text-slate-900"
+            >
+              Read full inspection report
+            </a>
+          )}
+        </div>
+      </section>
 
       {/* Ratings breakdown */}
       {keyRatings.length > 0 && (
-        <section className="mt-10">
-          <h2 className="text-xl font-bold text-stone-900 mb-4">
-            Ratings Breakdown
+        <section className="mt-6">
+          <h2 className="text-lg font-semibold text-slate-900 mb-3">
+            Ratings by quality area
           </h2>
-          <div className="bg-white rounded-xl border border-stone-200 overflow-hidden">
+          <div className="border border-slate-200 rounded-lg overflow-hidden divide-y divide-slate-100">
             {keyRatings.map((kq) => (
               <div
                 key={kq.name}
-                className="flex items-center justify-between px-5 py-4 border-b border-stone-100 last:border-b-0"
+                className="flex items-center justify-between px-5 py-3.5 bg-white"
               >
                 <div>
-                  <span className="font-medium text-stone-900">{kq.name}</span>
-                  <p className="text-xs text-stone-400 mt-0.5">
-                    {kq.reportDate &&
-                      `Rated ${new Date(kq.reportDate).toLocaleDateString("en-GB", { month: "short", year: "numeric" })}`}
+                  <span className="text-sm font-medium text-slate-900">
+                    {kq.name}
+                  </span>
+                  <p className="text-xs text-slate-400">
+                    {qualityAreaDescription(kq.name)}
                   </p>
                 </div>
                 <RatingBadge rating={kq.rating} size="sm" />
@@ -169,34 +187,38 @@ export default async function LocationPage({
         </section>
       )}
 
-      {/* Specialisms */}
-      {data.specialisms && data.specialisms.length > 0 && (
-        <section className="mt-10">
-          <h2 className="text-xl font-bold text-stone-900 mb-4">
-            Specialisms & Services
-          </h2>
-          <div className="flex flex-wrap gap-2">
-            {data.specialisms.map((s) => (
-              <span
-                key={s.name}
-                className="text-sm px-3 py-1.5 bg-teal-50 text-teal-800 rounded-full"
-              >
-                {s.name}
-              </span>
-            ))}
-          </div>
-        </section>
-      )}
-
-      {/* Contact & Links */}
-      <section className="mt-10">
-        <h2 className="text-xl font-bold text-stone-900 mb-4">
-          Contact & Details
-        </h2>
-        <div className="bg-white rounded-xl border border-stone-200 p-5 space-y-3">
+      {/* Key details */}
+      <section className="mt-8">
+        <h2 className="text-lg font-semibold text-slate-900 mb-3">Details</h2>
+        <div className="border border-slate-200 rounded-lg overflow-hidden divide-y divide-slate-100 bg-white">
+          {data.numberOfBeds && (
+            <DetailRow label="Number of beds" value={String(data.numberOfBeds)} />
+          )}
+          {data.localAuthority && (
+            <DetailRow label="Local authority" value={data.localAuthority} />
+          )}
+          {data.region && <DetailRow label="Region" value={data.region} />}
+          {data.lastInspection?.date && (
+            <DetailRow
+              label="Last inspected"
+              value={new Date(data.lastInspection.date).toLocaleDateString(
+                "en-GB",
+                { day: "numeric", month: "long", year: "numeric" }
+              )}
+            />
+          )}
+          {data.registrationDate && (
+            <DetailRow
+              label="Registered with CQC since"
+              value={new Date(data.registrationDate).toLocaleDateString(
+                "en-GB",
+                { day: "numeric", month: "long", year: "numeric" }
+              )}
+            />
+          )}
           {manager && (
             <DetailRow
-              label="Registered Manager"
+              label="Registered manager"
               value={`${manager.personGivenName} ${manager.personFamilyName}`}
             />
           )}
@@ -212,61 +234,47 @@ export default async function LocationPage({
                   }
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="text-teal-700 hover:underline"
+                  className="text-slate-600 underline hover:text-slate-900"
                 >
-                  {data.website}
+                  {data.website.replace(/^https?:\/\//, "").replace(/\/$/, "")}
                 </a>
               }
             />
           )}
-          {data.registrationDate && (
-            <DetailRow
-              label="Registered Since"
-              value={new Date(data.registrationDate).toLocaleDateString(
-                "en-GB",
-                { day: "numeric", month: "long", year: "numeric" }
-              )}
-            />
-          )}
           <DetailRow
-            label="CQC Page"
+            label="CQC page"
             value={
               <a
                 href={`https://www.cqc.org.uk/location/${data.locationId}`}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="text-teal-700 hover:underline"
+                className="text-slate-600 underline hover:text-slate-900"
               >
-                View on CQC website →
+                View on cqc.org.uk
               </a>
             }
           />
-          {data.reports?.[0] && (
-            <DetailRow
-              label="Latest Report"
-              value={
-                <a
-                  href={`https://www.cqc.org.uk${data.reports[0].reportUri}`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-teal-700 hover:underline"
-                >
-                  Read full inspection report →
-                </a>
-              }
-            />
-          )}
         </div>
       </section>
-    </div>
-  );
-}
 
-function InfoCard({ label, value }: { label: string; value: string }) {
-  return (
-    <div className="bg-white rounded-lg border border-stone-200 p-4 text-center">
-      <div className="text-lg font-bold text-stone-900">{value}</div>
-      <div className="text-xs text-stone-500 mt-1">{label}</div>
+      {/* Specialisms */}
+      {data.specialisms && data.specialisms.length > 0 && (
+        <section className="mt-8">
+          <h2 className="text-lg font-semibold text-slate-900 mb-3">
+            Services and specialisms
+          </h2>
+          <div className="flex flex-wrap gap-2">
+            {data.specialisms.map((s) => (
+              <span
+                key={s.name}
+                className="text-sm px-3 py-1 bg-slate-100 text-slate-700 rounded"
+              >
+                {s.name}
+              </span>
+            ))}
+          </div>
+        </section>
+      )}
     </div>
   );
 }
@@ -279,11 +287,22 @@ function DetailRow({
   value: React.ReactNode;
 }) {
   return (
-    <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-4">
-      <span className="text-sm font-medium text-stone-500 sm:w-40 flex-shrink-0">
+    <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-0 px-5 py-3">
+      <span className="text-sm text-slate-500 sm:w-52 flex-shrink-0">
         {label}
       </span>
-      <span className="text-sm text-stone-900">{value}</span>
+      <span className="text-sm text-slate-900">{value}</span>
     </div>
   );
+}
+
+function qualityAreaDescription(name: string): string {
+  const descriptions: Record<string, string> = {
+    Safe: "Are people protected from abuse and avoidable harm?",
+    Effective: "Does the care achieve good outcomes and help maintain quality of life?",
+    Caring: "Do staff involve and treat people with compassion, kindness and respect?",
+    Responsive: "Are services organised so they meet people\u2019s needs?",
+    "Well-led": "Does the leadership ensure high-quality, person-centred care?",
+  };
+  return descriptions[name] || "";
 }

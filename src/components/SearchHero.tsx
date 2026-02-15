@@ -20,18 +20,18 @@ export default function SearchHero({ compact }: { compact?: boolean }) {
 
   if (compact) {
     return (
-      <form onSubmit={handleSearch} className="flex gap-3 max-w-lg">
+      <form onSubmit={handleSearch} className="flex gap-3 max-w-md">
         <input
           type="text"
           value={postcode}
           onChange={(e) => setPostcode(e.target.value)}
           placeholder="Enter a postcode"
-          className="flex-1 px-4 py-3 text-base rounded-lg border border-stone-300 bg-white focus:outline-none focus:ring-2 focus:ring-teal-500"
+          className="flex-1 px-4 py-2.5 text-sm rounded-lg border border-slate-300 bg-white focus:outline-none focus:ring-2 focus:ring-slate-400"
           aria-label="Postcode"
         />
         <button
           type="submit"
-          className="px-6 py-3 font-semibold text-white bg-teal-600 rounded-lg hover:bg-teal-700 focus:outline-none focus:ring-2 focus:ring-teal-500 transition-colors cursor-pointer"
+          className="px-5 py-2.5 text-sm font-medium text-white bg-slate-900 rounded-lg hover:bg-slate-800 transition-colors cursor-pointer"
         >
           Search
         </button>
@@ -40,39 +40,45 @@ export default function SearchHero({ compact }: { compact?: boolean }) {
   }
 
   return (
-    <section className="bg-gradient-to-b from-teal-50 to-stone-50 py-16 sm:py-24">
-      <div className="max-w-3xl mx-auto px-4 text-center">
-        <h1 className="text-3xl sm:text-5xl font-bold text-stone-900 leading-tight">
-          Find the best-rated care homes{" "}
-          <span className="text-teal-700">near you</span>
+    <section className="py-16 sm:py-24">
+      <div className="max-w-6xl mx-auto px-4 sm:px-6">
+        <h1 className="text-3xl sm:text-4xl font-semibold text-slate-900 leading-tight max-w-xl">
+          Compare care home ratings in&nbsp;England
         </h1>
-        <p className="mt-4 text-lg sm:text-xl text-stone-600 max-w-2xl mx-auto">
-          Search official CQC ratings for every care home in England. Compare
-          ratings, read inspection results, and make informed decisions.
+        <p className="mt-4 text-lg text-slate-500 max-w-lg">
+          Search by postcode to see official CQC inspection ratings for care
+          homes near you.
         </p>
 
         <form
           onSubmit={handleSearch}
-          className="mt-8 flex flex-col sm:flex-row gap-3 max-w-lg mx-auto"
+          className="mt-8 flex flex-col sm:flex-row gap-3 max-w-md"
         >
           <input
             type="text"
             value={postcode}
             onChange={(e) => setPostcode(e.target.value)}
-            placeholder="Enter a postcode, e.g. SW1A 1AA"
-            className="flex-1 px-5 py-4 text-lg rounded-xl border border-stone-300 bg-white shadow-sm focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-teal-500"
-            aria-label="Postcode"
+            placeholder="Postcode, e.g. OX1 1PT"
+            className="flex-1 px-4 py-3.5 text-base rounded-lg border border-slate-300 bg-white focus:outline-none focus:ring-2 focus:ring-slate-400 focus:border-slate-400"
+            aria-label="Enter a postcode to search for care homes"
           />
           <button
             type="submit"
-            className="px-8 py-4 text-lg font-semibold text-white bg-teal-600 rounded-xl shadow-sm hover:bg-teal-700 focus:outline-none focus:ring-2 focus:ring-teal-500 transition-colors cursor-pointer"
+            className="px-7 py-3.5 text-base font-medium text-white bg-slate-900 rounded-lg hover:bg-slate-800 focus:outline-none focus:ring-2 focus:ring-slate-400 transition-colors cursor-pointer"
           >
-            Search
+            Search care homes
           </button>
         </form>
 
-        <p className="mt-3 text-sm text-stone-500">
-          Free to use · Official CQC data · Updated daily
+        <p className="mt-4 text-sm text-slate-400">
+          Ratings from the{" "}
+          <a
+            href="https://www.cqc.org.uk"
+            className="underline hover:text-slate-600"
+          >
+            Care Quality Commission
+          </a>
+          . Covers all registered care homes in England.
         </p>
       </div>
     </section>
