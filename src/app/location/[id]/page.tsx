@@ -232,44 +232,24 @@ export default async function LocationPage({
       )}
 
       {/* Area insights */}
-      {local && (local.ae_name || local.imd !== null) && (
+      {local?.ae_name && local.ae_miles !== null && (
         <section className="mt-8">
           <h2 className="text-lg font-semibold text-slate-900 mb-3">
             Area insights
           </h2>
-          <div className="grid sm:grid-cols-2 gap-4">
-            {local.ae_name && local.ae_miles !== null && (
-              <div className="border border-slate-200 rounded-lg p-5 bg-white">
-                <p className="text-xs font-medium text-slate-400 uppercase tracking-wide">
-                  Nearest A&amp;E
-                </p>
-                <p className="mt-1.5 text-sm font-medium text-slate-900">
-                  {local.ae_name}
-                </p>
-                <p className="text-sm text-slate-500">
-                  {local.ae_miles} {local.ae_miles === 1 ? "mile" : "miles"} away
-                </p>
-              </div>
-            )}
-            {local.imd !== null && local.imd_d !== null && (
-              <div className="border border-slate-200 rounded-lg p-5 bg-white">
-                <p className="text-xs font-medium text-slate-400 uppercase tracking-wide">
-                  Area deprivation
-                </p>
-                <p className="mt-1.5 text-sm font-medium text-slate-900">
-                  {imdLabel(local.imd_d)}
-                </p>
-                <p className="text-sm text-slate-500">
-                  IMD decile {local.imd_d} of 10
-                  {local.idaopi !== null && (
-                    <> &middot; {local.idaopi}% older people in income deprivation</>
-                  )}
-                </p>
-              </div>
-            )}
+          <div className="border border-slate-200 rounded-lg p-5 bg-white">
+            <p className="text-xs font-medium text-slate-400 uppercase tracking-wide">
+              Nearest A&amp;E
+            </p>
+            <p className="mt-1.5 text-sm font-medium text-slate-900">
+              {local.ae_name}
+            </p>
+            <p className="text-sm text-slate-500">
+              {local.ae_miles} {local.ae_miles === 1 ? "mile" : "miles"} away
+            </p>
           </div>
           <p className="mt-2 text-xs text-slate-400">
-            Hospital data from OpenStreetMap. Deprivation from English Indices of Deprivation 2019 (MHCLG). Distance is approximate (straight line).
+            Hospital data from OpenStreetMap. Distance is approximate (straight line).
           </p>
         </section>
       )}
@@ -381,14 +361,6 @@ function DetailRow({
       <span className="text-sm text-slate-900">{value}</span>
     </div>
   );
-}
-
-function imdLabel(decile: number): string {
-  if (decile <= 2) return "Least deprived areas";
-  if (decile <= 4) return "Below average deprivation";
-  if (decile <= 6) return "Average deprivation";
-  if (decile <= 8) return "Above average deprivation";
-  return "Most deprived areas";
 }
 
 function qualityAreaDescription(name: string): string {

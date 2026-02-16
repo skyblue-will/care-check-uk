@@ -255,14 +255,9 @@ export default async function SearchResults({
                 )}
 
                 {/* Area data */}
-                {(home.ae_miles != null || home.imd_d != null) && (
-                  <div className="mt-2 flex flex-wrap gap-x-4 text-xs text-slate-400">
-                    {home.ae_miles != null && (
-                      <span>A&amp;E: {home.ae_miles} mi{home.ae_name ? ` (${home.ae_name})` : ""}</span>
-                    )}
-                    {home.imd_d != null && (
-                      <span>Area: {imdShortLabel(home.imd_d)}</span>
-                    )}
+                {home.ae_miles != null && (
+                  <div className="mt-2 text-xs text-slate-400">
+                    <span>A&amp;E: {home.ae_miles} mi{home.ae_name ? ` (${home.ae_name})` : ""}</span>
                   </div>
                 )}
 
@@ -284,19 +279,10 @@ export default async function SearchResults({
 
       <p className="text-xs text-slate-400 mt-10">
         Ratings data from the Care Quality Commission under the Open Government
-        Licence. Area deprivation from English Indices of Deprivation 2019 (MHCLG).
-        Hospital data from OpenStreetMap. Distances are approximate (straight line).
+        Licence. Hospital data from OpenStreetMap. Distances are approximate (straight line).
       </p>
     </div>
   );
-}
-
-function imdShortLabel(decile: number): string {
-  if (decile <= 2) return "least deprived";
-  if (decile <= 4) return "below avg deprivation";
-  if (decile <= 6) return "average deprivation";
-  if (decile <= 8) return "above avg deprivation";
-  return "most deprived";
 }
 
 function QualityArea({ label, rating }: { label: string; rating: string }) {
