@@ -2,6 +2,7 @@ import RatingBadge from "./RatingBadge";
 import Link from "next/link";
 import { lookupPostcode, distanceMiles } from "@/lib/geo";
 import { cqcFetch } from "@/lib/cqc";
+import { searchLocal } from "@/lib/search-local";
 
 interface CareHomeResult {
   id: string;
@@ -41,6 +42,19 @@ async function fetchResults(
     };
   }
 
+  // Try local database first (instant, has all enriched data)
+  const localResults = searchLocal(
+    location.latitude,
+    location.longitude,
+    radius,
+    50
+  );
+
+  if (localResults && localResults.length > 0) {
+    return { results: localResults as CareHomeResult[], postcode: location.postcode };
+  }
+
+  // Fall back to CQC API if local database unavailable
   const [laResults, regionResults] = await Promise.all([
     cqcFetch(
       `/locations?careHome=Y&localAuthority=${encodeURIComponent(location.admin_district)}&perPage=200&page=1`
