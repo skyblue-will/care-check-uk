@@ -140,10 +140,10 @@ export default async function LocationPage({
             <div className="mt-2">
               <RatingBadge rating={ratings?.rating || null} size="lg" />
             </div>
-            {ratings?.reportDate && (
+            {data.lastInspection?.date && (
               <p className="text-xs text-slate-400 mt-2">
-                Rated{" "}
-                {new Date(ratings.reportDate).toLocaleDateString("en-GB", {
+                Last inspected{" "}
+                {new Date(data.lastInspection.date).toLocaleDateString("en-GB", {
                   day: "numeric",
                   month: "long",
                   year: "numeric",
