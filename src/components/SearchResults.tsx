@@ -24,6 +24,8 @@ interface CareHomeResult {
   ae_name?: string | null;
   ae_miles?: number | null;
   imd_d?: number | null;
+  trend?: string | null;
+  prev_r?: string | null;
 }
 
 async function fetchResults(
@@ -198,6 +200,16 @@ export default async function SearchResults({
 
                 <div className="mt-3 flex flex-wrap items-center gap-2">
                   <RatingBadge rating={home.rating} size="sm" />
+                  {home.trend === 'up' && (
+                    <span className="text-xs px-1.5 py-0.5 bg-emerald-100 text-emerald-700 rounded" title={`Improved from ${home.prev_r}`}>
+                      ↑ Improved
+                    </span>
+                  )}
+                  {home.trend === 'down' && (
+                    <span className="text-xs px-1.5 py-0.5 bg-amber-100 text-amber-700 rounded" title={`Declined from ${home.prev_r}`}>
+                      ↓ Declined
+                    </span>
+                  )}
                   {home.types.map((t) => (
                     <span
                       key={t}

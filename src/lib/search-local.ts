@@ -27,6 +27,10 @@ interface CareHomeEntry {
   imd?: number;       // IMD 2019 score (0-100, higher = more deprived)
   imd_d?: number;     // IMD decile (1=least, 10=most deprived)
   idaopi?: number;    // income deprivation affecting older people (%)
+  trend?: string;     // "up" | "down" | "stable" | "new"
+  prev_r?: string;    // previous rating (if trend is up/down)
+  insp_n?: number;    // total rated inspections
+  first_r?: string;   // date of first rated inspection
 }
 
 let cachedData: CareHomeEntry[] | null = null;
@@ -74,6 +78,8 @@ export function searchLocal(
       ae_name: h.ae_name || null,
       ae_miles: h.ae_miles ?? null,
       imd_d: h.imd_d ?? null,
+      trend: h.trend || null,
+      prev_r: h.prev_r || null,
     }))
     .filter((h) => h.distance <= radiusMiles)
     .sort((a, b) => a.distance - b.distance)
@@ -93,6 +99,10 @@ export function getLocalData(locationId: string) {
     imd: home.imd ?? null,
     imd_d: home.imd_d ?? null,
     idaopi: home.idaopi ?? null,
+    trend: home.trend || null,
+    prev_r: home.prev_r || null,
+    insp_n: home.insp_n ?? null,
+    first_r: home.first_r || null,
     beds: home.beds,
     rating: home.r,
   };

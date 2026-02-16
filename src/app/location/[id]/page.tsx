@@ -191,6 +191,46 @@ export default async function LocationPage({
         </section>
       )}
 
+      {/* Inspection trend */}
+      {local?.trend && local.trend !== 'new' && (
+        <section className="mt-6">
+          <div className={`rounded-lg border p-5 ${
+            local.trend === 'up'
+              ? 'border-emerald-200 bg-emerald-50'
+              : local.trend === 'down'
+                ? 'border-amber-200 bg-amber-50'
+                : 'border-slate-200 bg-slate-50'
+          }`}>
+            <div className="flex items-start gap-3">
+              <span className="text-lg leading-none mt-0.5">
+                {local.trend === 'up' ? '↑' : local.trend === 'down' ? '↓' : '→'}
+              </span>
+              <div>
+                <p className={`text-sm font-medium ${
+                  local.trend === 'up'
+                    ? 'text-emerald-900'
+                    : local.trend === 'down'
+                      ? 'text-amber-900'
+                      : 'text-slate-900'
+                }`}>
+                  {local.trend === 'up' && `Rating improved from ${local.prev_r}`}
+                  {local.trend === 'down' && `Rating declined from ${local.prev_r}`}
+                  {local.trend === 'stable' && 'Rating unchanged since last inspection'}
+                </p>
+                {local.insp_n && (
+                  <p className="text-xs text-slate-500 mt-1">
+                    {local.insp_n} rated inspection{local.insp_n !== 1 ? 's' : ''} on record
+                    {local.first_r && (
+                      <> · First rated {new Date(local.first_r).toLocaleDateString('en-GB', { month: 'long', year: 'numeric' })}</>
+                    )}
+                  </p>
+                )}
+              </div>
+            </div>
+          </div>
+        </section>
+      )}
+
       {/* Area insights */}
       {local && (local.ae_name || local.imd !== null) && (
         <section className="mt-8">
