@@ -422,9 +422,58 @@ export default async function LocationPage({
                 )}
               </div>
             )}
+            {local.pct65 != null && (
+              <div className="px-5 py-3.5">
+                <div className="flex items-start justify-between">
+                  <div>
+                    <p className="text-sm font-medium text-slate-900">
+                      Elderly population
+                    </p>
+                    <p className="text-xs text-slate-400 mt-0.5">
+                      {local.pct65}% of people in {data.localAuthority || "this area"} are aged 65 or over
+                    </p>
+                  </div>
+                  {local.beds_1k != null && (
+                    <div className="text-right flex-shrink-0 ml-4">
+                      <p className="text-lg font-semibold text-slate-900">{local.beds_1k}</p>
+                      <p className="text-xs text-slate-400">beds per 1,000 aged 65+</p>
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
           </div>
           <p className="mt-2 text-xs text-slate-400">
-            Fee data from DHSC MSIF reporting. Crime data from police.uk under the Open Government Licence.
+            Fee data from DHSC. Crime data from police.uk. Population data from ONS. All under the Open Government Licence.
+          </p>
+        </section>
+      )}
+
+      {/* Provider */}
+      {local?.prov && (
+        <section className="mt-8">
+          <h2 className="text-lg font-semibold text-slate-900 mb-3">
+            Provider
+          </h2>
+          <div className="border border-slate-200 rounded-lg p-5 bg-white">
+            <p className="text-sm font-medium text-slate-900">{local.prov}</p>
+            <div className="flex gap-6 mt-2">
+              {local.prov_n != null && (
+                <div>
+                  <p className="text-lg font-semibold text-slate-900">{local.prov_n}</p>
+                  <p className="text-xs text-slate-400">locations</p>
+                </div>
+              )}
+              {local.prov_good != null && (
+                <div>
+                  <p className="text-lg font-semibold text-slate-900">{local.prov_good}%</p>
+                  <p className="text-xs text-slate-400">rated Good or Outstanding</p>
+                </div>
+              )}
+            </div>
+          </div>
+          <p className="mt-2 text-xs text-slate-400">
+            Provider data from CQC. Portfolio ratings calculated from our database.
           </p>
         </section>
       )}

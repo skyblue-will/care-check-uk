@@ -45,6 +45,11 @@ interface CareHomeEntry {
   crime_n?: number;   // crimes in area (street-level, latest month)
   crime_t?: string;   // top crime category
   crime_d?: string;   // crime data month
+  pct65?: number;     // % of LA population aged 65+
+  beds_1k?: number;   // care home beds per 1,000 elderly in LA
+  prov?: string;      // provider (chain) name
+  prov_n?: number;    // total locations provider operates
+  prov_good?: number; // % of provider's rated homes Good or Outstanding
 }
 
 let cachedData: CareHomeEntry[] | null = null;
@@ -131,6 +136,11 @@ export function getLocalData(locationId: string) {
     crime_n: home.crime_n ?? null,
     crime_t: home.crime_t ?? null,
     crime_d: home.crime_d ?? null,
+    pct65: home.pct65 ?? null,
+    beds_1k: home.beds_1k ?? null,
+    prov: home.prov ?? null,
+    prov_n: home.prov_n ?? null,
+    prov_good: home.prov_good ?? null,
     beds: home.beds,
     rating: home.r,
   };
