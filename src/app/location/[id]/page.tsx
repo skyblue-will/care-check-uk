@@ -140,10 +140,10 @@ export default async function LocationPage({
             <div className="mt-2">
               <RatingBadge rating={ratings?.rating || null} size="lg" />
             </div>
-            {data.lastInspection?.date && (
+            {ratings?.reportDate && (
               <p className="text-xs text-slate-400 mt-2">
-                Last inspected{" "}
-                {new Date(data.lastInspection.date).toLocaleDateString("en-GB", {
+                Rating published{" "}
+                {new Date(ratings.reportDate).toLocaleDateString("en-GB", {
                   day: "numeric",
                   month: "long",
                   year: "numeric",
@@ -162,6 +162,38 @@ export default async function LocationPage({
             </a>
           )}
         </div>
+        {data.lastInspection?.date && (
+          <div className="mt-4 pt-4 border-t border-slate-200">
+            <div className="flex items-baseline justify-between">
+              <div>
+                <p className="text-sm font-medium text-slate-700">
+                  Last inspected{" "}
+                  {new Date(data.lastInspection.date).toLocaleDateString("en-GB", {
+                    day: "numeric",
+                    month: "long",
+                    year: "numeric",
+                  })}
+                </p>
+                {ratings?.reportDate && data.lastInspection.date !== ratings.reportDate && (
+                  <p className="text-xs text-slate-400 mt-1">
+                    The rating above may date from an earlier inspection. CQC
+                    only updates ratings when they assess the relevant quality areas.
+                  </p>
+                )}
+              </div>
+              {data.lastReport?.publicationDate && (
+                <p className="text-xs text-slate-400 flex-shrink-0 ml-4">
+                  Report published{" "}
+                  {new Date(data.lastReport.publicationDate).toLocaleDateString("en-GB", {
+                    day: "numeric",
+                    month: "short",
+                    year: "numeric",
+                  })}
+                </p>
+              )}
+            </div>
+          </div>
+        )}
       </section>
 
       {/* Ratings breakdown */}
