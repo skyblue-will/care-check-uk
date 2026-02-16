@@ -231,25 +231,94 @@ export default async function LocationPage({
         </section>
       )}
 
-      {/* Area insights */}
-      {local?.ae_name && local.ae_miles !== null && (
+      {/* Local healthcare */}
+      {local && (local.ae_name || local.gp_name) && (
         <section className="mt-8">
           <h2 className="text-lg font-semibold text-slate-900 mb-3">
-            Area insights
+            Local healthcare
           </h2>
-          <div className="border border-slate-200 rounded-lg p-5 bg-white">
-            <p className="text-xs font-medium text-slate-400 uppercase tracking-wide">
-              Nearest A&amp;E
-            </p>
-            <p className="mt-1.5 text-sm font-medium text-slate-900">
-              {local.ae_name}
-            </p>
-            <p className="text-sm text-slate-500">
-              {local.ae_miles} {local.ae_miles === 1 ? "mile" : "miles"} away
-            </p>
+          <div className="border border-slate-200 rounded-lg overflow-hidden divide-y divide-slate-100 bg-white">
+            {local.ae_name && local.ae_miles !== null && (
+              <div className="px-5 py-3.5">
+                <div className="flex items-start justify-between">
+                  <div>
+                    <p className="text-sm font-medium text-slate-900">
+                      Nearest A&amp;E
+                    </p>
+                    <p className="text-sm text-slate-500 mt-0.5">
+                      {local.ae_name}
+                    </p>
+                  </div>
+                  <span className="text-sm text-slate-500 flex-shrink-0 ml-4">
+                    {local.ae_miles} mi
+                  </span>
+                </div>
+              </div>
+            )}
+            {local.gp_miles !== null && (
+              <div className="px-5 py-3.5">
+                <div className="flex items-start justify-between">
+                  <div>
+                    <p className="text-sm font-medium text-slate-900">
+                      Nearest GP surgery
+                    </p>
+                    {local.gp_name && (
+                      <p className="text-sm text-slate-500 mt-0.5">
+                        {local.gp_name}
+                      </p>
+                    )}
+                  </div>
+                  <div className="text-sm text-slate-500 flex-shrink-0 ml-4 text-right">
+                    <p>{local.gp_miles} mi</p>
+                    {local.gp_n != null && local.gp_n > 0 && (
+                      <p className="text-xs text-slate-400">{local.gp_n} within 2 mi</p>
+                    )}
+                  </div>
+                </div>
+              </div>
+            )}
+            {local.ph_miles !== null && (
+              <div className="px-5 py-3.5">
+                <div className="flex items-start justify-between">
+                  <div>
+                    <p className="text-sm font-medium text-slate-900">
+                      Nearest pharmacy
+                    </p>
+                    {local.ph_name && (
+                      <p className="text-sm text-slate-500 mt-0.5">
+                        {local.ph_name}
+                      </p>
+                    )}
+                  </div>
+                  <div className="text-sm text-slate-500 flex-shrink-0 ml-4 text-right">
+                    <p>{local.ph_miles} mi</p>
+                    {local.ph_n != null && local.ph_n > 0 && (
+                      <p className="text-xs text-slate-400">{local.ph_n} within 2 mi</p>
+                    )}
+                  </div>
+                </div>
+              </div>
+            )}
+            {local.dn_miles !== null && (
+              <div className="px-5 py-3.5">
+                <div className="flex items-start justify-between">
+                  <div>
+                    <p className="text-sm font-medium text-slate-900">
+                      Nearest dentist
+                    </p>
+                  </div>
+                  <div className="text-sm text-slate-500 flex-shrink-0 ml-4 text-right">
+                    <p>{local.dn_miles} mi</p>
+                    {local.dn_n != null && local.dn_n > 0 && (
+                      <p className="text-xs text-slate-400">{local.dn_n} within 2 mi</p>
+                    )}
+                  </div>
+                </div>
+              </div>
+            )}
           </div>
           <p className="mt-2 text-xs text-slate-400">
-            Hospital data from OpenStreetMap. Distance is approximate (straight line).
+            Healthcare locations from OpenStreetMap. Distances are approximate (straight line).
           </p>
         </section>
       )}

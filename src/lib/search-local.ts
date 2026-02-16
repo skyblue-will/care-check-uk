@@ -31,6 +31,14 @@ interface CareHomeEntry {
   prev_r?: string;    // previous rating (if trend is up/down)
   insp_n?: number;    // total rated inspections
   first_r?: string;   // date of first rated inspection
+  gp_name?: string;   // nearest GP surgery name
+  gp_miles?: number;  // distance to nearest GP
+  gp_n?: number;      // GPs within 2 miles
+  ph_name?: string;   // nearest pharmacy name
+  ph_miles?: number;  // distance to nearest pharmacy
+  ph_n?: number;      // pharmacies within 2 miles
+  dn_miles?: number;  // distance to nearest dentist
+  dn_n?: number;      // dentists within 2 miles
 }
 
 let cachedData: CareHomeEntry[] | null = null;
@@ -103,6 +111,14 @@ export function getLocalData(locationId: string) {
     prev_r: home.prev_r || null,
     insp_n: home.insp_n ?? null,
     first_r: home.first_r || null,
+    gp_name: home.gp_name || null,
+    gp_miles: home.gp_miles ?? null,
+    gp_n: home.gp_n ?? null,
+    ph_name: home.ph_name || null,
+    ph_miles: home.ph_miles ?? null,
+    ph_n: home.ph_n ?? null,
+    dn_miles: home.dn_miles ?? null,
+    dn_n: home.dn_n ?? null,
     beds: home.beds,
     rating: home.r,
   };
