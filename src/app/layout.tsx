@@ -37,10 +37,16 @@ export default function RootLayout({
             </a>
             <nav className="flex items-center gap-5 text-sm">
               <a
+                href="/methodology"
+                className="text-slate-500 hover:text-slate-900 transition-colors"
+              >
+                Methodology
+              </a>
+              <a
                 href="/about"
                 className="text-slate-500 hover:text-slate-900 transition-colors"
               >
-                About this data
+                About
               </a>
             </nav>
           </div>
@@ -72,8 +78,13 @@ export default function RootLayout({
                   verify information directly with the care provider.
                 </p>
               </div>
-              <div className="text-sm text-slate-400 sm:text-right">
+              <div className="text-sm text-slate-400 sm:text-right space-y-1">
                 <p>Care Home Ratings</p>
+                <p>
+                  <a href="/about" className="underline hover:text-slate-600">About</a>
+                  {" · "}
+                  <a href="/methodology" className="underline hover:text-slate-600">Methodology</a>
+                </p>
               </div>
             </div>
           </div>

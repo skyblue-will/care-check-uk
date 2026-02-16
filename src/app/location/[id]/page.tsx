@@ -342,6 +342,24 @@ export default async function LocationPage({
           </div>
         </section>
       )}
+
+      {/* Attribution */}
+      <footer className="mt-12 pt-6 border-t border-slate-100 text-xs text-slate-400 space-y-1">
+        <p>
+          Ratings and inspection data from the{" "}
+          <a href="https://www.cqc.org.uk" className="underline hover:text-slate-600">
+            Care Quality Commission
+          </a>{" "}
+          under the Open Government Licence. Hospital data from OpenStreetMap.
+        </p>
+        <p>
+          <Link href="/methodology" className="underline hover:text-slate-600">
+            Read our methodology
+          </Link>
+          {" · "}
+          This is not medical advice. Always visit a care home in person before making a decision.
+        </p>
+      </footer>
     </div>
   );
 }

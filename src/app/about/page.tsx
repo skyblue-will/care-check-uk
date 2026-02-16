@@ -138,6 +138,37 @@ export default function AboutPage() {
         </section>
 
         <section>
+          <h2 className="text-lg font-semibold text-slate-900">
+            Our methodology
+          </h2>
+          <p className="mt-2">
+            We combine CQC data with other open datasets — including hospital
+            locations and inspection history — to give a fuller picture of each
+            care home.{" "}
+            <Link
+              href="/methodology"
+              className="underline hover:text-slate-900"
+            >
+              Read our full methodology
+            </Link>
+            , including what data we use, what we don&apos;t, and why.
+          </p>
+        </section>
+
+        <section>
+          <h2 className="text-lg font-semibold text-slate-900">
+            How this site is funded
+          </h2>
+          <p className="mt-2">
+            Care Home Ratings is free to use. We may earn a small commission
+            from recommended products and services, which are clearly marked.
+            Our care home data and editorial content are entirely independent of
+            any commercial relationships. No care home can pay to influence its
+            position in our results.
+          </p>
+        </section>
+
+        <section>
           <h2 className="text-lg font-semibold text-slate-900">Contact</h2>
           <p className="mt-2">
             If you have questions or feedback about this site, please email{" "}
