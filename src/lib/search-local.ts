@@ -39,6 +39,12 @@ interface CareHomeEntry {
   ph_n?: number;      // pharmacies within 2 miles
   dn_miles?: number;  // distance to nearest dentist
   dn_n?: number;      // dentists within 2 miles
+  ae_4h?: number;     // % seen within 4 hours at nearest A&E
+  la_res?: number;    // LA council-funded residential fee £/week
+  la_nurs?: number;   // LA council-funded nursing fee £/week
+  crime_n?: number;   // crimes in area (street-level, latest month)
+  crime_t?: string;   // top crime category
+  crime_d?: string;   // crime data month
 }
 
 let cachedData: CareHomeEntry[] | null = null;
@@ -119,6 +125,12 @@ export function getLocalData(locationId: string) {
     ph_n: home.ph_n ?? null,
     dn_miles: home.dn_miles ?? null,
     dn_n: home.dn_n ?? null,
+    ae_4h: home.ae_4h ?? null,
+    la_res: home.la_res ?? null,
+    la_nurs: home.la_nurs ?? null,
+    crime_n: home.crime_n ?? null,
+    crime_t: home.crime_t ?? null,
+    crime_d: home.crime_d ?? null,
     beds: home.beds,
     rating: home.r,
   };

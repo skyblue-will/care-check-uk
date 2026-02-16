@@ -281,6 +281,11 @@ export default async function LocationPage({
                     <p className="text-sm text-slate-500 mt-0.5">
                       {local.ae_name}
                     </p>
+                    {local.ae_4h != null && (
+                      <p className="text-xs text-slate-400 mt-0.5">
+                        {local.ae_4h}% of patients seen within 4 hours (Jan 2026)
+                      </p>
+                    )}
                   </div>
                   <span className="text-sm text-slate-500 flex-shrink-0 ml-4">
                     {local.ae_miles} mi
@@ -352,6 +357,74 @@ export default async function LocationPage({
           </div>
           <p className="mt-2 text-xs text-slate-400">
             Healthcare locations from OpenStreetMap. Distances are approximate (straight line).
+          </p>
+        </section>
+      )}
+
+      {/* Area information — fees & safety */}
+      {local && (local.la_res || local.crime_n != null) && (
+        <section className="mt-8">
+          <h2 className="text-lg font-semibold text-slate-900 mb-3">
+            Area information
+          </h2>
+          <div className="border border-slate-200 rounded-lg overflow-hidden divide-y divide-slate-100 bg-white">
+            {(local.la_res || local.la_nurs) && (
+              <div className="px-5 py-3.5">
+                <p className="text-sm font-medium text-slate-900">
+                  Council-funded care home fees
+                </p>
+                <p className="text-xs text-slate-400 mt-0.5">
+                  Average rates paid by {data.localAuthority || "the local authority"} (2025–26)
+                </p>
+                <div className="flex gap-6 mt-2">
+                  {local.la_res && (
+                    <div>
+                      <p className="text-lg font-semibold text-slate-900">
+                        £{local.la_res.toLocaleString()}
+                      </p>
+                      <p className="text-xs text-slate-400">per week, residential</p>
+                    </div>
+                  )}
+                  {local.la_nurs && (
+                    <div>
+                      <p className="text-lg font-semibold text-slate-900">
+                        £{local.la_nurs.toLocaleString()}
+                      </p>
+                      <p className="text-xs text-slate-400">per week, nursing</p>
+                    </div>
+                  )}
+                </div>
+                <p className="text-xs text-slate-400 mt-2">
+                  Self-funded residents typically pay more. These are the rates local authorities
+                  pay providers on behalf of council-funded residents.
+                </p>
+              </div>
+            )}
+            {local.crime_n != null && (
+              <div className="px-5 py-3.5">
+                <div className="flex items-start justify-between">
+                  <div>
+                    <p className="text-sm font-medium text-slate-900">
+                      Recorded crime nearby
+                    </p>
+                    <p className="text-xs text-slate-400 mt-0.5">
+                      Street-level crimes reported in this area ({local.crime_d ? new Date(local.crime_d + '-01').toLocaleDateString('en-GB', { month: 'long', year: 'numeric' }) : 'latest month'})
+                    </p>
+                  </div>
+                  <span className="text-lg font-semibold text-slate-900 flex-shrink-0 ml-4">
+                    {local.crime_n}
+                  </span>
+                </div>
+                {local.crime_t && local.crime_n > 0 && (
+                  <p className="text-xs text-slate-400 mt-1">
+                    Most common: {local.crime_t.replace(/-/g, ' ')}
+                  </p>
+                )}
+              </div>
+            )}
+          </div>
+          <p className="mt-2 text-xs text-slate-400">
+            Fee data from DHSC MSIF reporting. Crime data from police.uk under the Open Government Licence.
           </p>
         </section>
       )}
