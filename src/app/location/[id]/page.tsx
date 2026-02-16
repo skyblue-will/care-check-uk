@@ -151,9 +151,9 @@ export default async function LocationPage({
               </p>
             )}
           </div>
-          {data.reports?.[0] && (
+          {data.locationId && (
             <a
-              href={`https://www.cqc.org.uk${data.reports[0].reportUri}`}
+              href={`https://www.cqc.org.uk/location/${data.locationId}/inspection-summary`}
               target="_blank"
               rel="noopener noreferrer"
               className="text-sm text-slate-600 underline hover:text-slate-900"
