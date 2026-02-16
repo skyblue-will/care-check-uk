@@ -41,6 +41,7 @@ interface LocationData {
     };
   };
   lastInspection?: { date?: string };
+  lastReport?: { publicationDate?: string };
   reports?: { linkId: string; reportDate: string; reportUri: string }[];
 }
 
